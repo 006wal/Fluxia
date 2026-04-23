@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxia — Journaliser</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<div class="app-wrapper">
+
+    <header class="page-header">
+        <a th:href="@{/dashboard}" class="back-btn">←</a>
+        <h1 class="page-title">Journaliser</h1>
+        <div id="logDateDisplay" class="page-subtitle"></div>
+    </header>
+
+    <!-- DATE SELECTOR -->
+    <div class="section">
+        <div class="date-selector">
+            <button class="date-chip" id="datePrev">←</button>
+            <div class="date-center">
+                <input type="date" id="logDate" class="date-input-hidden">
+                <span id="dateLabel" class="date-label">Aujourd'hui</span>
+            </div>
+            <button class="date-chip" id="dateNext">→</button>
+        </div>
+    </div>
+
+    <!-- RÈGLES -->
+    <div class="log-section">
+        <h3 class="log-section-title">🩸 Règles</h3>
+        <div class="toggle-row">
+            <span>Jour de règles</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="isPeriodDay">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div id="flowSection" class="flow-chips" style="display:none">
+            <p class="chips-label">Intensité du flux</p>
+            <div class="chips-row">
+                <button class="flow-chip" data-flow="SPOTTING">💧 Légères traces</button>
+                <button class="flow-chip" data-flow="LIGHT">🩸 Légères</button>
+                <button class="flow-chip" data-flow="MEDIUM">🩸🩸 Normales</button>
+                <button class="flow-chip" data-flow="HEAVY">🩸🩸🩸 Abondantes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HUMEUR -->
+    <div class="log-section">
+        <h3 class="log-section-title">😊 Humeur</h3>
+        <div class="mood-grid">
+            <button class="mood-btn" data-mood="HAPPY">😊<span>Heureuse</span></button>
+            <button class="mood-btn" data-mood="SAD">😢<span>Triste</span></button>
+            <button class="mood-btn" data-mood="ANXIOUS">😰<span>Anxieuse</span></button>
+            <button class="mood-btn" data-mood="IRRITATED">😤<span>Irritée</span></button>
+            <button class="mood-btn" data-mood="CALM">😌<span>Calme</span></button>
+            <button class="mood-btn" data-mood="ENERGETIC">⚡<span>Énergique</span></button>
+            <button class="mood-btn" data-mood="SENSITIVE">🥺<span>Sensible</span></button>
+            <button class="mood-btn" data-mood="TIRED">😴<span>Fatiguée</span></button>
+        </div>
+    </div>
+
+    <!-- SYMPTÔMES -->
+    <div class="log-section">
+        <h3 class="log-section-title">🤒 Symptômes</h3>
+        <div class="symptom-grid">
+            <button class="symptom-btn" data-symptom="cramps">🤕 Crampes</button>
+            <button class="symptom-btn" data-symptom="headache">🤯 Maux de tête</button>
+            <button class="symptom-btn" data-symptom="bloating">🫠 Ballonnements</button>
+            <button class="symptom-btn" data-symptom="fatigue">😩 Fatigue</button>
+            <button class="symptom-btn" data-symptom="breast_tenderness">😣 Seins sensibles</button>
+            <button class="symptom-btn" data-symptom="acne">😖 Acné</button>
+            <button class="symptom-btn" data-symptom="nausea">🤢 Nausées</button>
+            <button class="symptom-btn" data-symptom="back_pain">🦴 Douleurs dos</button>
+            <button class="symptom-btn" data-symptom="mood_swings">🎭 Sautes d'humeur</button>
+            <button class="symptom-btn" data-symptom="insomnia">🌙 Insomnie</button>
+            <button class="symptom-btn" data-symptom="appetite">🍫 Fringales</button>
+            <button class="symptom-btn" data-symptom="spotting">💧 Spotting</button>
+        </div>
+    </div>
+
+    <!-- GLAIRE CERVICALE -->
+    <div class="log-section">
+        <h3 class="log-section-title">💧 Glaire cervicale</h3>
+        <div class="chips-row wrap">
+            <button class="flow-chip" data-mucus="DRY">Sèche</button>
+            <button class="flow-chip" data-mucus="STICKY">Collante</button>
+            <button class="flow-chip" data-mucus="CREAMY">Crémeuse</button>
+            <button class="flow-chip" data-mucus="WATERY">Aqueuse</button>
+            <button class="flow-chip" data-mucus="EGG_WHITE">Blanc d'œuf</button>
+        </div>
+    </div>
+
+    <!-- TEMPÉRATURE BASALE -->
+    <div class="log-section">
+        <h3 class="log-section-title">🌡️ Température basale</h3>
+        <div class="temp-input-row">
+            <input type="number" id="basalTemp" step="0.01" min="35" max="40" placeholder="ex: 36.5" class="temp-input">
+            <span class="temp-unit">°C</span>
+        </div>
+    </div>
+
+    <!-- ACTIVITÉ SEXUELLE -->
+    <div class="log-section">
+        <h3 class="log-section-title">❤️ Activité sexuelle</h3>
+        <div class="toggle-row">
+            <span>Rapport sexuel</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="sexualActivity">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div id="contraceptionRow" class="toggle-row" style="display:none;margin-top:0.5rem">
+            <span>Contraception utilisée</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="usedContraception">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="log-section">
+        <h3 class="log-section-title">📝 Notes</h3>
+        <textarea id="logNotes" class="notes-textarea" placeholder="Ajoute des notes personnelles..."></textarea>
+    </div>
+
+    <!-- SAVE BUTTON -->
+    <div class="section save-section">
+        <button class="btn btn-primary btn-full" onclick="saveLog()">
+            Sauvegarder ✓
+        </button>
+        <button class="btn btn-danger-outline btn-full" id="deleteBtn" onclick="deleteLog()" style="display:none;margin-top:0.75rem">
+            Supprimer ce log
+        </button>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- NAV -->
+    <nav class="bottom-nav">
+        <a th:href="@{/dashboard}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Aujourd'hui</span>
+        </a>
+        <a th:href="@{/calendar}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Calendrier</span>
+        </a>
+        <a th:href="@{/log}" class="log-btn active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </a>
+        <a th:href="@{/insights}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>Insights</span>
+        </a>
+        <a th:href="@{/profile}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+</div>
+<script th:src="@{/js/log.js}"></script>
+</body>
+</html>

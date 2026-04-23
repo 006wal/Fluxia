@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxia — Configuration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body class="auth-page">
+    <div class="auth-container onboarding-container">
+        <div class="onboarding-header">
+            <div class="brand-icon">🌸</div>
+            <h1>Configurons ton cycle</h1>
+            <p>Ces informations nous aident à calculer tes prédictions</p>
+        </div>
+
+        <div class="auth-card">
+            <form method="post" th:action="@{/onboarding}">
+
+                <div class="form-group">
+                    <label>Durée de ton cycle</label>
+                    <p class="form-hint">Le nombre de jours entre le 1er jour de tes règles et le 1er jour des suivantes</p>
+                    <div class="number-input-row">
+                        <button type="button" class="num-btn" onclick="changeValue('cycleLength', -1)">−</button>
+                        <div class="number-display">
+                            <input type="number" id="cycleLength" name="cycleLength" value="28" min="15" max="45" readonly>
+                            <span>jours</span>
+                        </div>
+                        <button type="button" class="num-btn" onclick="changeValue('cycleLength', 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Durée de tes règles</label>
+                    <p class="form-hint">Combien de jours durent tes règles en moyenne ?</p>
+                    <div class="number-input-row">
+                        <button type="button" class="num-btn" onclick="changeValue('periodLength', -1)">−</button>
+                        <div class="number-display">
+                            <input type="number" id="periodLength" name="periodLength" value="5" min="1" max="10" readonly>
+                            <span>jours</span>
+                        </div>
+                        <button type="button" class="num-btn" onclick="changeValue('periodLength', 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Date de tes dernières règles</label>
+                    <p class="form-hint">Le premier jour de tes dernières règles</p>
+                    <input type="date" name="lastPeriodDate" id="lastPeriodDate" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" style="margin-top:2rem">
+                    C'est parti ! 🌸
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function changeValue(id, delta) {
+            const input = document.getElementById(id);
+            const newVal = parseInt(input.value) + delta;
+            if (newVal >= parseInt(input.min) && newVal <= parseInt(input.max)) {
+                input.value = newVal;
+            }
+        }
+        // Set default date to today
+        document.getElementById('lastPeriodDate').valueAsDate = new Date();
+    </script>
+</body>
+</html>

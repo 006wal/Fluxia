@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxia — Calendrier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<div class="app-wrapper">
+
+    <header class="page-header">
+        <div></div>
+        <h1 class="page-title">Calendrier</h1>
+        <div></div>
+    </header>
+
+    <!-- MONTH NAVIGATION -->
+    <div class="month-nav">
+        <a class="month-nav-btn" id="prevMonthBtn">‹</a>
+        <h2 class="month-title" id="monthTitle"></h2>
+        <a class="month-nav-btn" id="nextMonthBtn">›</a>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="calendar-legend">
+        <div class="legend-item"><span class="legend-dot period"></span> Règles</div>
+        <div class="legend-item"><span class="legend-dot predicted_period"></span> Prévues</div>
+        <div class="legend-item"><span class="legend-dot fertile"></span> Fertile</div>
+        <div class="legend-item"><span class="legend-dot ovulation"></span> Ovulation</div>
+        <div class="legend-item"><span class="legend-dot logged"></span> Journalisé</div>
+    </div>
+
+    <!-- CALENDAR GRID -->
+    <div class="calendar-container">
+        <div class="calendar-weekdays">
+            <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <!-- DAY DETAIL PANEL -->
+    <div class="day-detail-panel" id="dayDetailPanel" style="display:none">
+        <div class="day-detail-header">
+            <h3 id="dayDetailTitle">Détails</h3>
+            <button onclick="closeDayDetail()" class="close-btn">✕</button>
+        </div>
+        <div class="day-detail-body" id="dayDetailBody"></div>
+        <a id="dayDetailLogLink" class="btn btn-primary btn-full" style="margin-top:1rem">
+            Journaliser ce jour →
+        </a>
+    </div>
+
+    <!-- NAV -->
+    <nav class="bottom-nav">
+        <a th:href="@{/dashboard}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Aujourd'hui</span>
+        </a>
+        <a th:href="@{/calendar}" class="active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Calendrier</span>
+        </a>
+        <a th:href="@{/log}" class="log-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </a>
+        <a th:href="@{/insights}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>Insights</span>
+        </a>
+        <a th:href="@{/profile}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+</div>
+
+<script th:inline="javascript">
+    let calData = /*[[${calendarData}]]*/ {};
+    let year = /*[[${currentYear}]]*/ 2026;
+    let month = /*[[${currentMonth}]]*/ 4;
+
+    const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+    function renderCalendar() {
+        document.getElementById('monthTitle').textContent = MONTHS_FR[month-1] + ' ' + year;
+        const grid = document.getElementById('calendarGrid');
+        const firstDay = new Date(year, month - 1, 1);
+        const lastDay = new Date(year, month, 0);
+        let startDow = firstDay.getDay();
+        startDow = startDow === 0 ? 6 : startDow - 1;
+
+        let html = '';
+        for (let i = 0; i < startDow; i++) html += '<div class="cal-cell empty"></div>';
+
+        const today = new Date();
+        for (let d = 1; d <= lastDay.getDate(); d++) {
+            const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const type = calData[dateStr] || '';
+            const isToday = today.getDate()===d && today.getMonth()===month-1 && today.getFullYear()===year;
+            html += `<div class="cal-cell ${type} ${isToday?'today':''}" onclick="showDayDetail('${dateStr}',${d})">${d}</div>`;
+        }
+        grid.innerHTML = html;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        renderCalendar();
+
+        document.getElementById('prevMonthBtn').onclick = () => {
+            month--; if(month < 1){month=12;year--;}
+            fetchCalendarData();
+        };
+        document.getElementById('nextMonthBtn').onclick = () => {
+            month++; if(month > 12){month=1;year++;}
+            fetchCalendarData();
+        };
+    });
+
+    function fetchCalendarData() {
+        fetch(`/api/calendar/${year}/${month}`)
+            .then(r => r.json())
+            .then(data => { calData = data; renderCalendar(); });
+    }
+
+    function showDayDetail(dateStr, day) {
+        const panel = document.getElementById('dayDetailPanel');
+        const title = document.getElementById('dayDetailTitle');
+        const body = document.getElementById('dayDetailBody');
+        const link = document.getElementById('dayDetailLogLink');
+
+        title.textContent = `${day} ${MONTHS_FR[month-1]} ${year}`;
+        link.href = `/log?date=${dateStr}`;
+
+        const type = calData[dateStr];
+        const typeLabels = {
+            period: '🩸 Jour de règles',
+            predicted_period: '📅 Règles prévues',
+            fertile: '💚 Fenêtre fertile',
+            ovulation: '🌟 Jour d\'ovulation',
+            logged: '✅ Journalisé'
+        };
+
+        body.innerHTML = type ? `<div class="day-type-badge ${type}">${typeLabels[type] || type}</div>` : '<p class="empty-day">Aucune donnée pour ce jour</p>';
+
+        fetch(`/api/logs/${dateStr}`)
+            .then(r => r.json())
+            .then(log => {
+                if (!log) return;
+                let details = '';
+                if (log.mood) details += `<div class="detail-row">Humeur: <strong>${moodLabel(log.mood)}</strong></div>`;
+                if (log.symptoms && log.symptoms.length) details += `<div class="detail-row">Symptômes: <strong>${log.symptoms.join(', ')}</strong></div>`;
+                if (log.basalTemperature) details += `<div class="detail-row">Temp. basale: <strong>${log.basalTemperature}°C</strong></div>`;
+                if (log.notes) details += `<div class="detail-row notes-preview">${log.notes}</div>`;
+                if (details) body.innerHTML += details;
+            }).catch(() => {});
+
+        panel.style.display = 'block';
+    }
+
+    function closeDayDetail() {
+        document.getElementById('dayDetailPanel').style.display = 'none';
+    }
+
+    function moodLabel(mood) {
+        const labels = {HAPPY:'😊 Heureuse',SAD:'😢 Triste',ANXIOUS:'😰 Anxieuse',IRRITATED:'😤 Irritée',CALM:'😌 Calme',ENERGETIC:'⚡ Énergique',SENSITIVE:'🥺 Sensible',TIRED:'😴 Fatiguée'};
+        return labels[mood] || mood;
+    }
+</script>
+</body>
+</html>

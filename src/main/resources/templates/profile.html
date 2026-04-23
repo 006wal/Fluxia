@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxia — Profil</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<div class="app-wrapper">
+
+    <header class="page-header">
+        <div></div>
+        <h1 class="page-title">Profil</h1>
+        <a th:href="@{/logout}" class="logout-btn">Déconnexion</a>
+    </header>
+
+    <!-- AVATAR -->
+    <div class="profile-avatar-section">
+        <div class="profile-avatar" th:style="'background-color:' + ${user.avatarColor}"
+             th:text="${#strings.substring(user.name, 0, 1)}">A</div>
+        <h2 class="profile-name" th:text="${user.name}">Nom</h2>
+        <p class="profile-email" th:text="${user.email}">email</p>
+    </div>
+
+    <!-- COULEUR AVATAR -->
+    <div class="section">
+        <h3 class="section-title">Couleur de profil</h3>
+        <div class="color-picker-row">
+            <button class="color-swatch" style="background:#E8829A" data-color="#E8829A" onclick="selectColor('#E8829A')"></button>
+            <button class="color-swatch" style="background:#F4A261" data-color="#F4A261" onclick="selectColor('#F4A261')"></button>
+            <button class="color-swatch" style="background:#52B788" data-color="#52B788" onclick="selectColor('#52B788')"></button>
+            <button class="color-swatch" style="background:#7B68EE" data-color="#7B68EE" onclick="selectColor('#7B68EE')"></button>
+            <button class="color-swatch" style="background:#F9C74F" data-color="#F9C74F" onclick="selectColor('#F9C74F')"></button>
+            <button class="color-swatch" style="background:#90BE6D" data-color="#90BE6D" onclick="selectColor('#90BE6D')"></button>
+        </div>
+    </div>
+
+    <!-- PARAMÈTRES DU CYCLE -->
+    <div class="section">
+        <h3 class="section-title">Paramètres du cycle</h3>
+        <div class="settings-card">
+            <div class="settings-row">
+                <label>Durée du cycle</label>
+                <div class="number-input-row compact">
+                    <button type="button" class="num-btn" onclick="changeValue('cycleLengthInput', -1)">−</button>
+                    <div class="number-display">
+                        <input type="number" id="cycleLengthInput" min="15" max="45"
+                               th:value="${user.cycleLength}" readonly>
+                        <span>j</span>
+                    </div>
+                    <button type="button" class="num-btn" onclick="changeValue('cycleLengthInput', 1)">+</button>
+                </div>
+            </div>
+            <div class="settings-row">
+                <label>Durée des règles</label>
+                <div class="number-input-row compact">
+                    <button type="button" class="num-btn" onclick="changeValue('periodLengthInput', -1)">−</button>
+                    <div class="number-display">
+                        <input type="number" id="periodLengthInput" min="1" max="10"
+                               th:value="${user.periodLength}" readonly>
+                        <span>j</span>
+                    </div>
+                    <button type="button" class="num-btn" onclick="changeValue('periodLengthInput', 1)">+</button>
+                </div>
+            </div>
+            <div class="settings-row">
+                <label>Dernières règles</label>
+                <input type="date" id="lastPeriodInput"
+                       th:value="${user.lastPeriodDate}" class="date-input-inline">
+            </div>
+
+            <button class="btn btn-primary btn-full" style="margin-top:1rem" onclick="saveCycleSettings()">
+                Sauvegarder
+            </button>
+        </div>
+    </div>
+
+    <!-- INFORMATIONS PERSONNELLES -->
+    <div class="section">
+        <h3 class="section-title">Informations personnelles</h3>
+        <div class="settings-card">
+            <div class="form-group">
+                <label>Prénom</label>
+                <input type="text" id="profileName" th:value="${user.name}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Date de naissance</label>
+                <input type="date" id="profileBirthDate" th:value="${user.birthDate}" class="form-input">
+            </div>
+            <button class="btn btn-primary btn-full" onclick="saveProfile()">Sauvegarder</button>
+        </div>
+    </div>
+
+    <!-- À PROPOS -->
+    <div class="section">
+        <div class="about-card">
+            <div class="about-logo">🌸</div>
+            <div class="about-text">
+                <strong>Fluxia v1.0</strong>
+                <p>Ton compagnon de cycle personnel.</p>
+                <p>Toutes tes données restent sur ton appareil.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- NAV -->
+    <nav class="bottom-nav">
+        <a th:href="@{/dashboard}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Aujourd'hui</span>
+        </a>
+        <a th:href="@{/calendar}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Calendrier</span>
+        </a>
+        <a th:href="@{/log}" class="log-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </a>
+        <a th:href="@{/insights}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>Insights</span>
+        </a>
+        <a th:href="@{/profile}" class="active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+</div>
+
+<script>
+function changeValue(id, delta) {
+    const input = document.getElementById(id);
+    const newVal = parseInt(input.value) + delta;
+    if (newVal >= parseInt(input.min) && newVal <= parseInt(input.max)) {
+        input.value = newVal;
+    }
+}
+
+function selectColor(color) {
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+    event.target.classList.add('selected');
+    fetch('/api/profile', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({avatarColor: color})
+    }).then(() => {
+        document.querySelector('.profile-avatar').style.backgroundColor = color;
+        showToast('Couleur mise à jour ✓');
+    });
+}
+
+function saveCycleSettings() {
+    const data = {
+        cycleLength: parseInt(document.getElementById('cycleLengthInput').value),
+        periodLength: parseInt(document.getElementById('periodLengthInput').value),
+        lastPeriodDate: document.getElementById('lastPeriodInput').value
+    };
+    fetch('/api/cycle-settings', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    }).then(() => showToast('Paramètres sauvegardés ✓'));
+}
+
+function saveProfile() {
+    const data = {
+        name: document.getElementById('profileName').value,
+        birthDate: document.getElementById('profileBirthDate').value
+    };
+    fetch('/api/profile', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    }).then(() => {
+        showToast('Profil mis à jour ✓');
+        document.querySelector('.profile-name').textContent = data.name;
+        document.querySelector('.profile-avatar').textContent = data.name[0];
+    });
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

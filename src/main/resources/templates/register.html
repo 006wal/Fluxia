@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxia — Inscription</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-brand">
+            <div class="brand-icon">🌸</div>
+            <h1 class="brand-name">Fluxia</h1>
+            <p class="brand-tagline">Ton compagnon de cycle</p>
+        </div>
+
+        <div class="auth-card">
+            <h2>Créer un compte</h2>
+
+            <div th:if="${error}" class="alert alert-error">
+                <span th:text="${error}"></span>
+            </div>
+
+            <form method="post" th:action="@{/register}">
+                <div class="form-group">
+                    <label>Prénom</label>
+                    <input type="text" name="name" placeholder="Comment t'appelles-tu ?" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="ton@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" name="password" placeholder="••••••••" minlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Commencer 🌸</button>
+            </form>
+
+            <p class="auth-switch">
+                Déjà un compte ?
+                <a th:href="@{/login}">Se connecter</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
