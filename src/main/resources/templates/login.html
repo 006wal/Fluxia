@@ -66,10 +66,10 @@
                 </div>
                 
                 <div class="cta-buttons">
-                    <a th:href="@{/dashboard}" class="btn btn-primary btn-glow">
+                    <button class="btn btn-primary btn-glow" id="openLoginModal">
                         <span>Commencer l'aventure</span>
                         <span class="btn-arrow">→</span>
-                    </a>
+                    </button>
                     <a th:href="@{/learn-more}" class="btn btn-secondary">
                         <span>En savoir plus</span>
                     </a>
@@ -143,6 +143,46 @@
             </div>
         </footer>
     </div>
+
+    <!-- MODAL DE CONNEXION -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-modal">&times;</span>
+                <div class="modal-brand">
+                    <div class="brand-icon">🌸</div>
+                    <h2>Fluxia</h2>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="auth-card">
+                    <h3>Connexion</h3>
+                    <p class="auth-subtitle">Retrouve ton espace personnel</p>
+                    
+                    <div th:if="${error}" class="alert alert-error">
+                        <span th:text="${error}"></span>
+                    </div>
+                    
+                    <form method="post" th:action="@{/login}" id="loginForm">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" placeholder="ton@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Mot de passe</label>
+                            <input type="password" name="password" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Se connecter</button>
+                    </form>
+                    
+                    <p class="auth-switch">
+                        Pas encore de compte ?
+                        <a th:href="@{/register}">Créer un compte</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <script>
         // Particle Animation
@@ -193,6 +233,28 @@
         
         animateParticles();
         
+        // MODAL LOGIC
+        const modal = document.getElementById('loginModal');
+        const openBtn = document.getElementById('openLoginModal');
+        const closeBtn = document.querySelector('.close-modal');
+        
+        openBtn.onclick = function() {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -202,6 +264,14 @@
                     target.scrollIntoView({ behavior: 'smooth' });
                 }
             });
+        });
+        
+        // Escape key closes modal
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.style.display === 'flex') {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
         });
     </script>
 </body>
