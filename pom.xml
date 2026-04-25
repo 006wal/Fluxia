@@ -11,6 +11,11 @@
         <relativePath/>
     </parent>
 
+         <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
     <groupId>com.fluxia</groupId>
     <artifactId>fluxia</artifactId>
     <version>1.0.0</version>
