@@ -3,47 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluxia — Inscription</title>
+    <title>Fluxia — Rejoins l'aventure 🌸</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/register.css}">
 </head>
-<body class="auth-page">
+<body class="register-page">
+    <!-- Particle Canvas Background -->
+    <canvas id="particleCanvas"></canvas>
+    
+    <!-- Floating Orbs -->
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+    <div class="floating-orb orb-3"></div>
+    
     <div class="auth-container">
         <div class="auth-brand">
-            <div class="brand-icon">🌸</div>
+            <div class="brand-icon">
+                <span class="icon-flower">🌸</span>
+                <span class="icon-sparkle">✨</span>
+            </div>
             <h1 class="brand-name">Fluxia</h1>
             <p class="brand-tagline">Ton compagnon de cycle</p>
         </div>
 
         <div class="auth-card">
-            <h2>Créer un compte</h2>
+            <div class="card-header">
+                <h2>Rejoins l'aventure 💕</h2>
+                <p class="card-subtitle">Crée ton espace bien-être en quelques secondes</p>
+            </div>
 
             <div th:if="${error}" class="alert alert-error">
+                <span class="alert-icon">⚠️</span>
                 <span th:text="${error}"></span>
             </div>
 
-            <form method="post" th:action="@{/register}">
+            <form method="post" th:action="@{/register}" id="registerForm">
                 <div class="form-group">
-                    <label>Prénom</label>
+                    <label>
+                        <span class="label-icon">👤</span>
+                        <span>Prénom</span>
+                    </label>
                     <input type="text" name="name" placeholder="Comment t'appelles-tu ?" required>
+                    <div class="input-hint">Comment veux-tu qu'on t'appelle ?</div>
                 </div>
+                
                 <div class="form-group">
-                    <label>Email</label>
+                    <label>
+                        <span class="label-icon">📧</span>
+                        <span>Email</span>
+                    </label>
                     <input type="email" name="email" placeholder="ton@email.com" required>
+                    <div class="input-hint">Nous ne partagerons jamais ton email</div>
                 </div>
+                
                 <div class="form-group">
-                    <label>Mot de passe</label>
-                    <input type="password" name="password" placeholder="••••••••" minlength="6" required>
+                    <label>
+                        <span class="label-icon">🔒</span>
+                        <span>Mot de passe</span>
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" name="password" id="password" placeholder="••••••••" minlength="6" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword()">👁️</button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar"></div>
+                        <div class="strength-text"></div>
+                    </div>
+                    <div class="input-hint">Minimum 6 caractères</div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-full">Commencer 🌸</button>
+                
+                <button type="submit" class="btn btn-primary btn-full btn-glow">
+                    <span>Commencer mon aventure</span>
+                    <span class="btn-arrow">🌸</span>
+                </button>
             </form>
+
+            <div class="auth-divider">
+                <span class="divider-line"></span>
+                <span class="divider-text">ou</span>
+                <span class="divider-line"></span>
+            </div>
 
             <p class="auth-switch">
                 Déjà un compte ?
-                <a th:href="@{/login}">Se connecter</a>
+                <a th:href="@{/login}">
+                    <span>Se connecter</span>
+                    <span class="switch-arrow">→</span>
+                </a>
             </p>
+
+            <div class="auth-benefits">
+                <div class="benefit-item">
+                    <span class="benefit-icon">✓</span>
+                    <span>100% gratuit</span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">✓</span>
+                    <span>Données sécurisées</span>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">✓</span>
+                    <span>Annulation à tout moment</span>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Particle Animation
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        const particles = [];
+        const particleCount = 100;
+        
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 4 + 1,
+                speedX: (Math.random() - 0.5) * 0.5,
+                speedY: (Math.random() - 0.5) * 0.5,
+                opacity: Math.random() * 0.5 + 0.2
+            });
+        }
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 182, 193, ${p.opacity})`;
+                ctx.fill();
+            });
+            
+            requestAnimationFrame(animateParticles);
+        }
+        
+        animateParticles();
+        
+        // Password Strength Meter
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.querySelector('.strength-bar');
+        const strengthText = document.querySelector('.strength-text');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 6) strength++;
+            if (password.length >= 10) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            const width = (strength / 5) * 100;
+            strengthBar.style.width = width + '%';
+            
+            if (strength === 0) {
+                strengthBar.style.background = '#ddd';
+                strengthText.textContent = 'Très faible';
+                strengthText.style.color = '#999';
+            } else if (strength <= 2) {
+                strengthBar.style.background = '#ff6b6b';
+                strengthText.textContent = 'Faible';
+                strengthText.style.color = '#ff6b6b';
+            } else if (strength <= 3) {
+                strengthBar.style.background = '#ffd93d';
+                strengthText.textContent = 'Moyen';
+                strengthText.style.color = '#ffd93d';
+            } else if (strength <= 4) {
+                strengthBar.style.background = '#6bcf7f';
+                strengthText.textContent = 'Fort';
+                strengthText.style.color = '#6bcf7f';
+            } else {
+                strengthBar.style.background = '#4ecdc4';
+                strengthText.textContent = 'Très fort ✨';
+                strengthText.style.color = '#4ecdc4';
+            }
+        });
+        
+        // Toggle Password Visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+        }
+        
+        // Form Validation with Animation
+        const form = document.getElementById('registerForm');
+        const inputs = form.querySelectorAll('input');
+        
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+        });
+        
+        form.addEventListener('submit', function(e) {
+            const password = passwordInput.value;
+            if (password.length < 6) {
+                e.preventDefault();
+                showError('Le mot de passe doit contenir au moins 6 caractères');
+            }
+        });
+        
+        function showError(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-error';
+            alertDiv.innerHTML = `<span class="alert-icon">⚠️</span><span>${message}</span>`;
+            const form = document.getElementById('registerForm');
+            form.insertBefore(alertDiv, form.firstChild);
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+        
+        // Smooth entrance animation for form elements
+        const formGroups = document.querySelectorAll('.form-group');
+        formGroups.forEach((group, index) => {
+            group.style.animation = `slideInRight 0.5s ${index * 0.1}s both`;
+        });
+        
+        // Add floating animation to brand icon
+        const brandIcon = document.querySelector('.brand-icon');
+        setInterval(() => {
+            brandIcon.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                brandIcon.style.transform = 'scale(1)';
+            }, 300);
+        }, 3000);
+    </script>
 </body>
 </html>
