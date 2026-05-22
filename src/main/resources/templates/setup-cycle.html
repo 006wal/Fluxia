@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxia - Configuration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #fdf2f4;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(255, 75, 110, 0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            font-size: 2rem;
+            color: #ff4b6e;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            color: #444;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            background-color: #fafafa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #ff4b6e;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(255, 75, 110, 0.1);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #ff4b6e, #ff758c);
+            color: white;
+            border: none;
+            padding: 1.1rem;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            box-shadow: 0 8px 20px rgba(255, 75, 110, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(255, 75, 110, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(-1px);
+        }
+
+        .info-text {
+            font-size: 0.75rem;
+            color: #aaa;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo">Fluxia ✨</div>
+        <h2>Configure ton cycle</h2>
+        
+        <form th:action="@{/save-cycle}" method="post">
+            <div class="form-group">
+                <label for="dateDebut">Dernières règles</label>
+                <input type="date" id="dateDebut" name="dateDebut" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="dureeCycle">Durée du cycle (jours)</label>
+                <input type="number" id="dureeCycle" name="dureeCycle" value="28" min="21" max="35" required>
+            </div>
+            
+            <button type="submit" class="btn-submit">Calculer mon cycle</button>
+        </form>
+        
+        <p class="info-text">Tes données sont stockées en toute sécurité.</p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Fluxia - Ton Profil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #fdf2f4; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 25px; box-shadow: 0 10px 30px rgba(255, 75, 110, 0.1); width: 90%; max-width: 450px; }
+        h2 { color: #ff4b6e; text-align: center; }
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; font-size: 0.9rem; color: #666; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; }
+        .btn { background: #ff4b6e; color: white; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Bienvenue sur Fluxia ✨</h2>
+        <form th:action="@{/save-profile}" method="post">
+            <div class="form-group">
+                <label>Nom & Prénom</label>
+                <input type="text" name="nomComplet" placeholder="Ex: Sarah Martin" required>
+            </div>
+            <div class="form-group">
+                <label>Âge</label>
+                <input type="number" name="age" min="12" max="60" required>
+            </div>
+            <div class="form-group">
+                <label>Avez-vous un partenaire ?</label>
+                <select name="aPartenaire">
+                    <option value="false">Non</option>
+                    <option value="true">Oui</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">Continuer vers mon cycle</button>
+        </form>
+    </div>
+</body>
+</html>
