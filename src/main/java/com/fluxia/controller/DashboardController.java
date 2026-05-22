@@ -1,136 +1,97 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package com.fluxia.controller;
 
-import com.fluxia.model.Cycle;
-import com.fluxia.model.Utilisatrice;
-import com.fluxia.repository.CycleRepository;
-import com.fluxia.repository.UtilisatriceRepository;
-import com.fluxia.service.CycleService;
-import com.fluxia.service.ArticleService;
+import com.fluxia.model.User;
+import com.fluxia.service.CycleCalculatorService;
+import com.fluxia.service.CycleLogService;
+import com.fluxia.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @Controller
 public class DashboardController {
 
-    @Autowired
-    private CycleService cycleService;
+    @Autowired private UserService userService;
+    @Autowired private CycleCalculatorService cycleCalculator;
+    @Autowired private CycleLogService cycleLogService;
 
-    @Autowired
-    private ArticleService articleService;
-    
-    @Autowired
-    private CycleRepository cycleRepository;
-
-    @Autowired
-    private UtilisatriceRepository utilisatriceRepository;
-
-    /**
-     * 1. Affiche le formulaire de création de profil
-     */
-    @GetMapping("/setup-profile")
-    public String afficherProfilForm() {
-        return "setup-profile"; 
-    }
-
-    /**
-     * 2. Sauvegarde le profil
-     * CORRECTION : On ne force plus l'ID 1. On laisse MySQL générer l'ID.
-     */
-    @PostMapping("/save-profile")
-    public String sauvegarderProfil(@RequestParam String nomComplet, 
-                                    @RequestParam int age, 
-                                    @RequestParam boolean aPartenaire,
-                                    HttpSession session) {
-        
-        Utilisatrice user = new Utilisatrice();
-        user.setNomComplet(nomComplet);
-        user.setAge(age);
-        user.setAPartenaire(aPartenaire);
-        
-        // Sauvegarde et récupération de l'objet avec son ID généré
-        Utilisatrice savedUser = utilisatriceRepository.save(user);
-        
-        // On stocke l'ID réel en session pour les étapes suivantes
-        session.setAttribute("userId", savedUser.getId());
-
-        return "redirect:/setup-cycle";
-    }
-
-    /**
-     * 3. Affiche le formulaire du cycle
-     */
-    @GetMapping("/setup-cycle")
-    public String afficherCycleForm(HttpSession session) {
-        if (session.getAttribute("userId") == null) {
-            return "redirect:/setup-profile";
-        }
-        return "setup-cycle"; 
-    }
-
-    /**
-     * 4. Sauvegarde le cycle
-     */
-    @PostMapping("/save-cycle")
-    public String sauvegarderCycle(@RequestParam("dateDebut") String dateDebut, 
-                                   @RequestParam("dureeCycle") int duree,
-                                   HttpSession session) {
-        
+    @GetMapping("/dashboard")
+    public String dashboard(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) return "redirect:/setup-profile";
-        
-        Utilisatrice user = utilisatriceRepository.findById(userId).orElseThrow();
+        if (userId == null) return "redirect:/login";
 
-        Cycle cycle = new Cycle();
-        cycle.setUtilisatrice(user); // Lie le cycle à l'utilisatrice via la relation @ManyToOne
-       // cycle.setUserId(userId);     // Garde aussi le userId simple si nécessaire
-        cycle.setDateDernieresRegles(LocalDate.parse(dateDebut));
-        cycle.setDureeCycle(duree);
-        
-        cycleRepository.save(cycle);
-        return "redirect:/dashboard";
+        User user = userService.getUserById(userId);
+        CycleCalculatorService.CyclePhase phase = cycleCalculator.getCurrentPhase(user);
+
+        model.addAttribute("user", user);
+        model.addAttribute("phase", phase);
+        model.addAttribute("dayOfCycle", cycleCalculator.getDayOfCycle(user));
+        model.addAttribute("daysUntilPeriod", cycleCalculator.getDaysUntilNextPeriod(user));
+        model.addAttribute("nextPeriodDate", cycleCalculator.getNextPeriodDate(user));
+        model.addAttribute("ovulationDate", cycleCalculator.getOvulationDate(user));
+        model.addAttribute("fertileWindow", cycleCalculator.getFertileWindow(user));
+        model.addAttribute("todayLog", cycleLogService.getLogForDate(userId, LocalDate.now()).orElse(null));
+        model.addAttribute("today", LocalDate.now());
+
+        // Calendrier du mois courant
+        LocalDate now = LocalDate.now();
+        Map<String, String> calendarData = cycleCalculator.getCalendarData(user, now.getYear(), now.getMonthValue());
+        model.addAttribute("calendarData", calendarData);
+        model.addAttribute("currentYear", now.getYear());
+        model.addAttribute("currentMonth", now.getMonthValue());
+
+        return "dashboard";
     }
 
-    /**
-     * 5. Page principale (Dashboard)
-     */
-    @GetMapping({"/", "/dashboard"})
-    public String afficherDashboard(Model model, HttpSession session) {
+    @GetMapping("/calendar")
+    public String calendar(HttpSession session, Model model,
+                           @org.springframework.web.bind.annotation.RequestParam(required = false) Integer year,
+                           @org.springframework.web.bind.annotation.RequestParam(required = false) Integer month) {
         Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) return "redirect:/login";
 
-        // Sécurité : Si pas d'ID en session, retour au début
-        if (userId == null) {
-            return "redirect:/setup-profile";
-        }
+        User user = userService.getUserById(userId);
+        LocalDate now = LocalDate.now();
+        int y = year != null ? year : now.getYear();
+        int m = month != null ? month : now.getMonthValue();
 
-        Utilisatrice user = utilisatriceRepository.findById(userId).orElse(null);
-        Cycle cycle = cycleRepository.findByUserId(userId);
+        model.addAttribute("user", user);
+        model.addAttribute("calendarData", cycleCalculator.getCalendarData(user, y, m));
+        model.addAttribute("currentYear", y);
+        model.addAttribute("currentMonth", m);
+        model.addAttribute("today", now);
 
-        if (user == null) return "redirect:/setup-profile";
-        if (cycle == null) return "redirect:/setup-cycle";
+        return "calendar";
+    }
 
-        // Calculs et affichage
-        int jour = cycleService.obtenirJourActuel(userId);
-        
-        model.addAttribute("nomUtilisatrice", user.getNomComplet());
-        model.addAttribute("aPartenaire", user.isAPartenaire());
-        model.addAttribute("jourActuel", jour);
-        model.addAttribute("phase", cycleService.obtenirPhase(jour));
-        model.addAttribute("conseil", cycleService.obtenirConseil(jour));
-        model.addAttribute("joursRestants", cycleService.joursAvantRegles(userId, jour));
-        model.addAttribute("articles", articleService.obtenirArticlesRecents());
+    @GetMapping("/insights")
+    public String insights(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) return "redirect:/login";
 
-        return "index"; 
+        User user = userService.getUserById(userId);
+
+        model.addAttribute("user", user);
+        model.addAttribute("symptomStats", cycleCalculator.getSymptomStats(user));
+        model.addAttribute("moodStats", cycleCalculator.getMoodStats(user));
+        model.addAttribute("avgCycleLength", cycleCalculator.getAverageCycleLength(user));
+        model.addAttribute("recentLogs", cycleLogService.getRecentLogs(userId, 90));
+
+        return "insights";
+    }
+
+    @GetMapping("/profile")
+    public String profile(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) return "redirect:/login";
+
+        User user = userService.getUserById(userId);
+        model.addAttribute("user", user);
+        return "profile";
     }
 }

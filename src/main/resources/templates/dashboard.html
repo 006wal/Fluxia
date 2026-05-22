@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxia — Aujourd'hui</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<div class="app-wrapper">
+
+    <!-- HEADER -->
+    <header class="app-header">
+        <div class="header-left">
+            <span class="header-greeting" th:text="'Bonjour, ' + ${user.name} + ' 🌸'">Bonjour 🌸</span>
+            <span class="header-date" id="headerDate"></span>
+        </div>
+        <div class="header-avatar" th:style="'background-color:' + ${user.avatarColor}"
+             th:text="${#strings.substring(user.name, 0, 1)}">A</div>
+    </header>
+
+    <!-- PHASE CARD -->
+    <div class="phase-hero" th:style="'--phase-color:' + ${phase.color}">
+        <div class="phase-bg-circle"></div>
+        <div class="phase-content">
+            <div class="phase-label">
+                <span class="phase-dot"></span>
+                <span th:text="${phase.label}">Phase</span>
+            </div>
+            <div class="phase-day-number" th:text="'Jour ' + ${dayOfCycle}">Jour 1</div>
+            <div class="phase-description" th:text="${phase.description}">Description</div>
+            <div class="phase-countdown" th:if="${daysUntilPeriod >= 0}">
+                <span th:if="${daysUntilPeriod == 0}">🩸 Tes règles arrivent aujourd'hui</span>
+                <span th:if="${daysUntilPeriod == 1}">🩸 Règles demain</span>
+                <span th:if="${daysUntilPeriod > 1}" th:text="'Règles dans ' + ${daysUntilPeriod} + ' jours'"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK LOG (si pas encore loggé aujourd'hui) -->
+    <div class="section" th:if="${todayLog == null}">
+        <div class="quick-log-card">
+            <div class="quick-log-title">Comment tu te sens aujourd'hui ?</div>
+            <div class="mood-quick-row" id="quickMoodRow">
+                <button class="mood-chip" data-mood="HAPPY" onclick="quickLog('HAPPY')">😊 Bien</button>
+                <button class="mood-chip" data-mood="TIRED" onclick="quickLog('TIRED')">😴 Fatiguée</button>
+                <button class="mood-chip" data-mood="ANXIOUS" onclick="quickLog('ANXIOUS')">😰 Anxieuse</button>
+                <button class="mood-chip" data-mood="IRRITATED" onclick="quickLog('IRRITATED')">😤 Irritée</button>
+                <button class="mood-chip" data-mood="ENERGETIC" onclick="quickLog('ENERGETIC')">⚡ Énergique</button>
+            </div>
+            <a th:href="@{/log}" class="btn btn-outline btn-sm" style="margin-top:0.75rem">
+                Journaliser en détail →
+            </a>
+        </div>
+    </div>
+
+    <!-- LOG DU JOUR (si déjà loggé) -->
+    <div class="section" th:if="${todayLog != null}">
+        <div class="today-log-card">
+            <div class="today-log-header">
+                <span>✅ Journalisé aujourd'hui</span>
+                <a th:href="@{/log}" class="edit-link">Modifier</a>
+            </div>
+            <div class="today-log-details">
+                <div th:if="${todayLog.mood != null}" class="log-detail-item">
+                    <span class="log-detail-icon">😊</span>
+                    <span th:text="${todayLog.mood.name()}">Humeur</span>
+                </div>
+                <div th:if="${todayLog.isPeriodDay}" class="log-detail-item period-badge">
+                    <span>🩸 Règles</span>
+                    <span th:if="${todayLog.flowIntensity != null}" th:text="'— ' + ${todayLog.flowFlowIntensity}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INFORMATIONS DU CYCLE -->
+    <div class="section">
+        <h2 class="section-title">Ton cycle</h2>
+        <div class="cycle-info-grid">
+            <div class="cycle-info-card">
+                <div class="cycle-info-icon">📅</div>
+                <div class="cycle-info-value"
+                     th:text="${nextPeriodDate != null ? #temporals.format(nextPeriodDate, 'd MMM') : '—'}">—</div>
+                <div class="cycle-info-label">Prochaines règles</div>
+            </div>
+            <div class="cycle-info-card">
+                <div class="cycle-info-icon">🌟</div>
+                <div class="cycle-info-value"
+                     th:text="${ovulationDate != null ? #temporals.format(ovulationDate, 'd MMM') : '—'}">—</div>
+                <div class="cycle-info-label">Ovulation</div>
+            </div>
+            <div class="cycle-info-card fertile-card" th:if="${fertileWindow != null and !fertileWindow.isEmpty()}">
+                <div class="cycle-info-icon">💚</div>
+                <div class="cycle-info-value"
+                     th:text="${fertileWindow['start'] != null ? #temporals.format(fertileWindow['start'], 'd') + '–' + #temporals.format(fertileWindow['end'], 'd MMM') : '—'}">—</div>
+                <div class="cycle-info-label">Fenêtre fertile</div>
+            </div>
+            <div class="cycle-info-card">
+                <div class="cycle-info-icon">🔄</div>
+                <div class="cycle-info-value" th:text="${user.cycleLength} + 'j'">28j</div>
+                <div class="cycle-info-label">Longueur cycle</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MINI CALENDRIER -->
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">Ce mois-ci</h2>
+            <a th:href="@{/calendar}" class="see-more-link">Voir tout →</a>
+        </div>
+        <div class="mini-calendar" id="miniCalendar">
+            <!-- Rempli par JS -->
+        </div>
+    </div>
+
+    <!-- NAVIGATION BAS -->
+    <nav class="bottom-nav">
+        <a th:href="@{/dashboard}" class="active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Aujourd'hui</span>
+        </a>
+        <a th:href="@{/calendar}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Calendrier</span>
+        </a>
+        <a th:href="@{/log}" class="log-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </a>
+        <a th:href="@{/insights}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>Insights</span>
+        </a>
+        <a th:href="@{/profile}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+</div>
+
+<script th:inline="javascript">
+    const calendarData = /*[[${calendarData}]]*/ {};
+    const currentYear = /*[[${currentYear}]]*/ 2024;
+    const currentMonth = /*[[${currentMonth}]]*/ 1;
+
+    // Header date
+    document.getElementById('headerDate').textContent = new Date().toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+
+    // Mini calendar
+    function renderMiniCalendar() {
+        const cal = document.getElementById('miniCalendar');
+        const days = ['L','M','M','J','V','S','D'];
+        let html = '<div class="mini-cal-days-header">' + days.map(d => `<div class="mini-cal-weekday">${d}</div>`).join('') + '</div>';
+        html += '<div class="mini-cal-grid">';
+
+        const firstDay = new Date(currentYear, currentMonth - 1, 1);
+        const lastDay = new Date(currentYear, currentMonth, 0);
+        let startDow = firstDay.getDay();
+        startDow = startDow === 0 ? 6 : startDow - 1;
+
+        for (let i = 0; i < startDow; i++) html += '<div class="mini-cal-cell empty"></div>';
+
+        const today = new Date();
+        for (let d = 1; d <= lastDay.getDate(); d++) {
+            const dateStr = `${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const type = calendarData[dateStr] || '';
+            const isToday = today.getDate() === d && today.getMonth() === currentMonth - 1 && today.getFullYear() === currentYear;
+            html += `<div class="mini-cal-cell ${type} ${isToday ? 'today' : ''}">${d}</div>`;
+        }
+        html += '</div>';
+        cal.innerHTML = html;
+    }
+    renderMiniCalendar();
+
+    // Quick log
+    function quickLog(mood) {
+        fetch('/api/logs/' + new Date().toISOString().split('T')[0], {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({mood: mood})
+        }).then(() => location.reload());
+    }
+</script>
+</body>
+</html>
